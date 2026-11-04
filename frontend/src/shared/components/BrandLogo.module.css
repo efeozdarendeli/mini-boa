@@ -1,0 +1,22 @@
+.brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.wordmark {
+  font-size: 34px;
+  font-weight: 400;
+  color: var(--color-primary);
+  letter-spacing: -0.5px;
+}
+
+.wordmark strong {
+  font-weight: 800;
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  font-size: 24px;
+  color: var(--color-primary);
+}

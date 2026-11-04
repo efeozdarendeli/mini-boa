@@ -1,0 +1,67 @@
+# MiniBoa API örnek istekleri.
+# Visual Studio / Rider / VS Code (REST Client) içinde her isteğin üstündeki "Send Request" ile çalıştırılır.
+# Önce: docker compose up -d --wait  ve  dotnet run --project MiniBoa.Communication
+
+@host = http://localhost:5080
+
+### Çağrılabilir işlemlerin listesi
+GET {{host}}/api/operations
+
+### İl listesi (giriş gerektirmez)
+POST {{host}}/api/execute
+Content-Type: application/json
+
+{ "methodName": "Parameter.GetCityList" }
+
+### İlçe listesi (BOA'daki Executer.GetCountyList)
+POST {{host}}/api/execute
+Content-Type: application/json
+
+{ "methodName": "Parameter.GetCountyList", "data": { "cityId": 34 } }
+
+### Müşteri Ol 1. adım: mevcut müşteri -> GoCardLogin
+POST {{host}}/api/execute
+Content-Type: application/json
+Accept-Language: tr
+
+{
+  "methodName": "BecomeACustomer.CustomerDecisionByTaxNumber",
+  "data": { "identityNumber": "12345678950", "gsmAreaCode": "532", "gsmNumber": "1112233" }
+}
+
+### Giriş: cevaptaki token, aşağıdaki @token değişkenine otomatik alınır
+# @name login
+POST {{host}}/api/execute
+Content-Type: application/json
+
+{
+  "methodName": "Login.Login",
+  "data": { "identityNumber": "12345678950", "password": "123456" }
+}
+
+###
+@token = {{login.response.body.$.value.token}}
+
+### Ana sayfa özeti (giriş gerektirir)
+POST {{host}}/api/execute
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "methodName": "Account.GetCustomerSummary" }
+
+### Token olmadan aynı istek -> 401
+POST {{host}}/api/execute
+Content-Type: application/json
+
+{ "methodName": "Account.GetCustomerSummary" }
+
+### Yetersiz bakiye -> İngilizce hata mesajı
+POST {{host}}/api/execute
+Content-Type: application/json
+Authorization: Bearer {{token}}
+Accept-Language: en
+
+{
+  "methodName": "Transfer.Transfer",
+  "data": { "fromAccountId": 1, "toIban": "TR060099900000100000020001", "amount": 999999, "description": "Test" }
+}

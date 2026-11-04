@@ -1,0 +1,43 @@
+{
+  "Xtm": {
+    "WeCantMakeYourTranNowTryAgain": "We can't complete your transaction right now. Please try again later.",
+    "UnexpectedError": "An unexpected error occurred.",
+    "MethodNotFound": "The requested operation was not found.",
+    "Unauthorized": "You need to sign in for this operation.",
+    "InvalidRequest": "The request is missing or invalid."
+  },
+  "Business": {
+    "InvalidIdentityNumber": "The identity number is invalid.",
+    "IdentityNotVerified": "Your identity could not be verified.",
+    "InvalidName": "First and last name must contain letters only.",
+    "InvalidEmail": "The email address is invalid.",
+    "InvalidGsm": "The mobile phone number is invalid.",
+    "UnderAge": "You must be at least 18 years old to become a customer.",
+    "PersonAlreadyExists": "A person with this identity number already exists.",
+    "PersonNotFound": "Person not found.",
+    "InvalidAddress": "Address is required.",
+    "CountyNotInCity": "The selected district does not belong to this city.",
+    "InvalidPasswordFormat": "Password must be a 6-digit number.",
+    "WeakPassword": "Password cannot be repeated (111111) or sequential (123456).",
+    "CustomerAlreadyExists": "This person is already a customer.",
+    "CustomerNotFound": "Customer not found.",
+    "InvalidCredentials": "Identity number or password is incorrect.",
+    "CustomerPassive": "Your customer record is not active.",
+    "AccountLimitReached": "You have reached the maximum number of accounts.",
+    "UnsupportedCurrency": "Accounts cannot be opened in this currency.",
+    "AccountNotFound": "Account not found.",
+    "InvalidAmount": "Amount must be greater than zero with at most 2 decimal places.",
+    "InvalidIban": "The IBAN is invalid.",
+    "ReceiverNotFound": "Receiver account not found.",
+    "SameAccount": "Sender and receiver accounts cannot be the same.",
+    "AccountNotActive": "The account is not active.",
+    "CurrencyMismatch": "Sender and receiver accounts must have the same currency.",
+    "InsufficientBalance": "Insufficient balance.",
+    "ApplicationNotFound": "No ongoing application was found.",
+    "AccountLocked": "Your account has been temporarily locked after too many failed attempts. Please try again in {0} minutes.",
+    "IdentityVerificationFailed": "The details you entered do not match our records.",
+    "SameAsOldPassword": "Your new password cannot be the same as your old password.",
+    "DailyLimitExceeded": "This exceeds your daily transfer limit ({0}). Your remaining limit for today: {1}.",
+    "InvalidPeriod": "Invalid period."
+  }
+}

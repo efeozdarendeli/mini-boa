@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: miniboa-postgres
+    environment:
+      POSTGRES_DB: miniboa
+      POSTGRES_USER: miniboa
+      # Sadece yerel demo için; gerçek ortamda .env / secret ile verilmeli.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-miniboa_dev}
+    ports:
+      # 5432 bilgisayarda kurulu olabilecek başka bir PostgreSQL ile çakışmasın diye 5433.
+      - "5433:5432"
+    volumes:
+      - miniboa-data:/var/lib/postgresql/data
+      # Bu klasördeki .sql dosyaları, veritabanı ilk kez (boş volume ile) oluşurken sırayla çalışır.
+      - ./database:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U miniboa -d miniboa"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  miniboa-data:

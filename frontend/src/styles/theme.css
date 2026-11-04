@@ -1,0 +1,46 @@
+/*
+ * Tasarım değişkenleri (renk, boşluk, köşe, gölge).
+ * Bileşenler renkleri doğrudan yazmaz, buradan alır; temayı değiştirmek için tek dosya yeterli.
+ * Renk dili örnek self-servis ekranlarından alındı: petrol yeşili ana renk, turuncu ikincil vurgu.
+ */
+:root {
+  --color-primary: #11806f;
+  --color-primary-dark: #0b6355;
+  --color-primary-soft: #e3f2ef;
+  --color-accent: #f29423;
+  --color-accent-dark: #d97c0e;
+  --color-accent-soft: #fdf0e0;
+
+  --color-background: #f3f5f5;
+  --color-surface: #ffffff;
+  --color-border: #e1e7e6;
+  --color-text: #24312f;
+  --color-text-muted: #6b7a78;
+
+  --color-danger: #c0392b;
+  --color-danger-soft: #fbeaea;
+  --color-warning: #b9770e;
+  --color-warning-soft: #fdf3e2;
+  --color-success: #1e8449;
+  --color-success-soft: #e6f4ea;
+
+  --font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 6px 24px rgba(17, 60, 55, 0.08);
+  --shadow-raised: 0 10px 30px rgba(17, 60, 55, 0.14);
+
+  --content-width: 1120px;
+}

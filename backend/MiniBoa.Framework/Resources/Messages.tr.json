@@ -1,0 +1,43 @@
+{
+  "Xtm": {
+    "WeCantMakeYourTranNowTryAgain": "İşleminizi şu anda gerçekleştiremiyoruz. Lütfen daha sonra tekrar deneyiniz.",
+    "UnexpectedError": "Beklenmeyen bir hata oluştu.",
+    "MethodNotFound": "İstenen işlem bulunamadı.",
+    "Unauthorized": "Bu işlem için giriş yapmanız gerekmektedir.",
+    "InvalidRequest": "İstek eksik veya hatalı."
+  },
+  "Business": {
+    "InvalidIdentityNumber": "T.C. kimlik numarası geçersiz.",
+    "IdentityNotVerified": "Kimlik bilgileriniz doğrulanamadı.",
+    "InvalidName": "Ad ve soyad sadece harflerden oluşmalıdır.",
+    "InvalidEmail": "E-posta adresi geçersiz.",
+    "InvalidGsm": "Cep telefonu numarası geçersiz.",
+    "UnderAge": "Müşteri olabilmek için 18 yaşından büyük olmalısınız.",
+    "PersonAlreadyExists": "Bu kimlik numarasıyla kayıtlı bir kişi zaten var.",
+    "PersonNotFound": "Kişi bulunamadı.",
+    "InvalidAddress": "Adres boş olamaz.",
+    "CountyNotInCity": "Seçilen ilçe bu ile ait değil.",
+    "InvalidPasswordFormat": "Şifre 6 haneli bir sayı olmalıdır.",
+    "WeakPassword": "Şifre tekrarlı (111111) veya ardışık (123456) olamaz.",
+    "CustomerAlreadyExists": "Bu kişi zaten müşterimiz.",
+    "CustomerNotFound": "Müşteri bulunamadı.",
+    "InvalidCredentials": "T.C. kimlik numarası veya şifre hatalı.",
+    "CustomerPassive": "Müşteri kaydınız aktif değil.",
+    "AccountLimitReached": "Açabileceğiniz en fazla hesap sayısına ulaştınız.",
+    "UnsupportedCurrency": "Bu döviz cinsinde hesap açılamaz.",
+    "AccountNotFound": "Hesap bulunamadı.",
+    "InvalidAmount": "Tutar sıfırdan büyük olmalı ve en fazla 2 ondalık basamak içermelidir.",
+    "InvalidIban": "IBAN geçersiz.",
+    "ReceiverNotFound": "Alıcı hesap bulunamadı.",
+    "SameAccount": "Gönderen ve alıcı hesap aynı olamaz.",
+    "AccountNotActive": "Hesap aktif değil.",
+    "CurrencyMismatch": "Gönderen ve alıcı hesabın döviz cinsi aynı olmalıdır.",
+    "InsufficientBalance": "Hesap bakiyesi yetersiz.",
+    "ApplicationNotFound": "Devam eden bir başvuru bulunamadı.",
+    "AccountLocked": "Çok sayıda hatalı deneme yapıldığı için hesabınız geçici olarak kilitlendi. Lütfen {0} dakika sonra tekrar deneyiniz.",
+    "IdentityVerificationFailed": "Girdiğiniz bilgiler kayıtlarımızla eşleşmedi.",
+    "SameAsOldPassword": "Yeni şifreniz eski şifrenizle aynı olamaz.",
+    "DailyLimitExceeded": "Günlük transfer limitiniz ({0}) aşılıyor. Bugün kalan limitiniz: {1}.",
+    "InvalidPeriod": "Geçersiz dönem seçimi."
+  }
+}

@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="MiniBoa.Business/MiniBoa.Business.csproj" />
+  <Project Path="MiniBoa.Communication/MiniBoa.Communication.csproj" />
+  <Project Path="MiniBoa.Data/MiniBoa.Data.csproj" />
+  <Project Path="MiniBoa.Framework/MiniBoa.Framework.csproj" />
+  <Project Path="MiniBoa.Orchestration/MiniBoa.Orchestration.csproj" />
+  <Project Path="MiniBoa.Tests/MiniBoa.Tests.csproj" />
+  <Project Path="MiniBoa.Types/MiniBoa.Types.csproj" />
+</Solution>

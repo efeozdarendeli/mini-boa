@@ -1,0 +1,11 @@
+/* Dekont başlığı ekranda gizli, sadece yazdırırken görünür. */
+.receiptTitle {
+  display: none;
+}
+
+@media print {
+  .receiptTitle {
+    display: block;
+    font-size: 20px;
+  }
+}

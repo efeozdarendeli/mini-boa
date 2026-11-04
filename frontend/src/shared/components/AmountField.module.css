@@ -1,0 +1,14 @@
+.wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.field {
+  flex: 1;
+}
+
+/* Butonu giriş kutusuyla aynı hizaya getirmek için etiket yüksekliği kadar boşluk. */
+.action {
+  padding-top: 25px;
+}

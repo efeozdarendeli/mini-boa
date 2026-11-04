@@ -1,0 +1,89 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title {
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+.empty {
+  padding: var(--space-4) 0;
+  color: var(--color-text-muted);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.icon.incoming {
+  background: var(--color-success-soft);
+}
+
+.icon.outgoing {
+  background: var(--color-danger-soft);
+}
+
+.details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.description {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  color: var(--color-text-muted);
+}
+
+.amount {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.incoming {
+  color: var(--color-success);
+}
+
+.outgoing {
+  color: var(--color-danger);
+}
+
+.showAll {
+  margin-top: var(--space-1);
+  padding: var(--space-3);
+  border: none;
+  border-top: 1px solid var(--color-border);
+  background: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}

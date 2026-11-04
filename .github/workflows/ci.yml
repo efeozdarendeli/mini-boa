@@ -1,0 +1,61 @@
+# Her push ve pull request'te backend ve frontend testleri çalışır.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      # Entegrasyon testleri gerçek PostgreSQL ister; yerel docker-compose ile aynı imaj ve port.
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: miniboa
+          POSTGRES_USER: miniboa
+          POSTGRES_PASSWORD: miniboa_dev
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U miniboa -d miniboa"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Şema ve demo verisini yükle
+        env:
+          PGPASSWORD: miniboa_dev
+        run: |
+          for file in database/*.sql; do
+            psql -h localhost -p 5433 -U miniboa -d miniboa -v ON_ERROR_STOP=1 -f "$file"
+          done
+
+      - name: Testler
+        run: dotnet test backend/MiniBoa.slnx
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build

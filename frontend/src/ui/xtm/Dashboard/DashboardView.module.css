@@ -1,0 +1,135 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.hello {
+  color: var(--color-text-muted);
+  letter-spacing: 1px;
+}
+
+.name {
+  font-size: 24px;
+  letter-spacing: 0.5px;
+}
+
+.lastLogin {
+  margin-top: var(--space-1);
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.link {
+  margin-top: var(--space-3);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-accent-dark);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-text-muted);
+}
+
+.accounts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.accountsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.accountsHeader h2 {
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+.totalLabel {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.total {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.accountList {
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.accountRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.accountNumber {
+  display: block;
+  color: var(--color-text-muted);
+}
+
+.allAccounts {
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  border: none;
+  border-top: 1px solid var(--color-border);
+  background: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
