@@ -90,7 +90,7 @@ mini-boa/
 │  ├─ messaging/              TR/EN metinler
 │  └─ shared/                 Ortak bileşenler, doğrulama, biçimlendirme
 ├─ database/                  01_schema.sql, 02_locations.sql (81 il, 973 ilçe), 03_seed.sql
-├─ docs/                      Mimari, faz notları, istek akışı, sorular
+├─ docs/                      Mimari, istek akışı, kurulum, BOA eşlemesi
 ├─ scripts/                   start.ps1 / stop.ps1 (start.cmd ve stop.cmd bunları çalıştırır)
 ├─ .github/workflows/ci.yml   Her push'ta build + testler
 └─ docker-compose.yml
@@ -118,6 +118,7 @@ cd frontend && npm test                    # 86 test
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | BOA katmanları ↔ MiniBoa karşılıkları |
 | [docs/REQUEST-FLOW.md](docs/REQUEST-FLOW.md) | Bir isteğin butondan veritabanına ve geri, dosya dosya yolculuğu |
 | [docs/SETUP.md](docs/SETUP.md) | Kurulum, demo kullanıcıları, demo akışı |
+| [docs/boa-miniboa-eslesme.html](docs/boa-miniboa-eslesme.html) | BOA sınıf ve metotlarının MiniBoa karşılıkları (tarayıcıda açılan aranabilir sayfa) |
 
 ## Bilinçli sadeleştirmeler
 

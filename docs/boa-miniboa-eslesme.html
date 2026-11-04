@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BOA ↔ MiniBoa Eşlemesi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Düzen: üstte katman akışı şeridi, altında her katman için BOA → MiniBoa satırları (sol: BOA, sağ: MiniBoa). */
+:root {
+  --bg: #f3f5f5;
+  --surface: #ffffff;
+  --line: #dde5e3;
+  --fg: #24312f;
+  --muted: #637371;
+  --green: #11806f;
+  --green-soft: #e3f2ef;
+  --orange: #c4700c;
+  --orange-soft: #fdf0e0;
+  --code-bg: #eef2f1;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121a19; --surface: #1a2423; --line: #2c3a38; --fg: #e3ebe9; --muted: #98a9a6;
+    --green: #4cc2ad; --green-soft: #183531; --orange: #f2a54a; --orange-soft: #3a2a17; --code-bg: #22302e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121a19; --surface: #1a2423; --line: #2c3a38; --fg: #e3ebe9; --muted: #98a9a6;
+  --green: #4cc2ad; --green-soft: #183531; --orange: #f2a54a; --orange-soft: #3a2a17; --code-bg: #22302e;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+}
+.wrap {
+  max-width: 1080px; margin: 0 auto;
+  padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 28px;
+}
+h1, h2 { text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); line-height: 1.15; }
+h1 .boa { color: var(--orange); }
+h1 .mini { color: var(--green); }
+.lead { margin: 8px 0 0; color: var(--muted); max-width: 65ch; }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.9rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot.boa { background: var(--orange); }
+.dot.mini { background: var(--green); }
+
+/* Akış şeridi */
+.flow { overflow-x: auto; }
+.flow ol {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.flow li { display: flex; align-items: center; gap: 6px; }
+.flow li + li::before { content: "→"; color: var(--muted); }
+.flow a {
+  display: inline-block; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface);
+  color: var(--fg); text-decoration: none; font-size: 0.9rem; font-weight: 600;
+}
+.flow a:hover, .flow a:focus-visible { border-color: var(--green); color: var(--green); outline: none; }
+.flow .side { font-size: 0.82rem; color: var(--muted); margin-top: 8px; }
+
+.search { display: grid; gap: 6px; }
+.search label { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.search input {
+  width: 100%; padding: 10px 14px; font: inherit;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg);
+}
+.search input:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
+.empty { color: var(--muted); }
+
+/* Katman bölümleri */
+.layer { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; scroll-margin-top: 16px; }
+.layer header { padding: 18px 20px 14px; display: grid; gap: 4px; border-bottom: 1px solid var(--line); }
+.layer .eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.layer h2 { font-size: 1.25rem; }
+.layer .role { margin: 0; color: var(--muted); max-width: 70ch; }
+.layer .project { font-family: var(--font-mono); font-size: 0.8rem; color: var(--green); }
+
+.cols, .row {
+  display: grid; grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1.2fr);
+  gap: 0 8px; padding: 12px 20px; align-items: start;
+}
+.cols { padding-block: 8px; background: var(--bg); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.cols .b { color: var(--orange); }
+.cols .m { color: var(--green); grid-column: 3; }
+.row + .row { border-top: 1px solid var(--line); }
+.row .arrow { color: var(--muted); text-align: center; padding-top: 2px; }
+.cell { min-width: 0; display: grid; gap: 4px; }
+.name {
+  font-family: var(--font-mono); font-size: 0.86rem; font-weight: 600;
+  padding: 2px 8px; border-radius: 6px; justify-self: start; max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.boa-side .name { background: var(--orange-soft); color: var(--orange); }
+.mini-side .name { background: var(--green-soft); color: var(--green); }
+.note { font-size: 0.92rem; color: var(--muted); }
+.file { font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); text-decoration: none; overflow-wrap: anywhere; }
+a.file:hover, a.file:focus-visible { color: var(--green); text-decoration: underline; outline: none; }
+
+footer { color: var(--muted); font-size: 0.9rem; }
+footer a { color: var(--green); }
+
+@media (max-width: 640px) {
+  .cols { display: none; }
+  .row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .row .arrow { text-align: left; padding: 0; }
+  .row .arrow::before { content: "↓"; }
+  .row .arrow span { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div>
+    <h1><span class="boa">BOA</span> ↔ <span class="mini">MiniBoa</span> eşlemesi</h1>
+    <p class="lead">BOA'daki her katmanın, sınıfın ve metodun MiniBoa'da hangi dosyada, hangi isimle karşılandığını gösterir. Dosya adına tıklayınca GitHub'daki kod açılır.</p>
+  </div>
+
+  <div class="legend" aria-hidden="true">
+    <span><i class="dot boa"></i>BOA'daki karşılık</span>
+    <span><i class="dot mini"></i>MiniBoa'daki karşılık</span>
+  </div>
+
+  <nav class="flow" aria-label="Katmanlar">
+    <ol id="flow"></ol>
+    <div class="side">Bir isteğin izlediği yol. Yanında tüm katmanlarca kullanılan ortak parçalar: <a href="#types" class="mono">Types</a>, <a href="#tracing" class="mono">Tracing</a>, <a href="#exceptions" class="mono">Exception</a>, <a href="#config" class="mono">Config</a>.</div>
+  </nav>
+
+  <div class="search">
+    <label for="q">Ara</label>
+    <input id="q" type="search" placeholder="Örn. GenericResponse, Helper, Transfer, Executer" autocomplete="off">
+  </div>
+
+  <main id="layers"></main>
+  <p class="empty" id="empty" hidden>Aramaya uyan satır yok.</p>
+
+  <footer>Kaynak kod: <a href="https://github.com/efeozdarendeli/mini-boa" target="_blank" rel="noopener">github.com/efeozdarendeli/mini-boa</a></footer>
+</div>
+
+<script>
+const REPO = "https://github.com/efeozdarendeli/mini-boa/blob/main/";
+
+// [BOA adı, BOA notu, MiniBoa adı, MiniBoa notu, dosya yolu, satır]
+const LAYERS = [
+  {
+    id: "ui", flow: "Ekran (XAML)", title: "Declarative UI (XAML)",
+    project: "frontend/src/ui/xtm/",
+    role: "Kullanıcının gördüğü ekran. BOA'da görünüm .xaml, ekran mantığı Manager.cs dosyasındaydı; MiniBoa'da View.tsx + useXManager.ts ikilisi.",
+    rows: [
+      ["BecomeACustomer.xaml", "Ekranın görünümü", "BecomeACustomerView.tsx", "Sadece görünüm; mantık içermez", "frontend/src/ui/xtm/BecomeACustomer/BecomeACustomerView.tsx"],
+      ["Xtm.UI.BecomeACustomer.BecomeACustomerManager", "Ekranın mantığı (Manager.cs)", "useBecomeACustomerManager()", "Adım geçişleri, servis çağrıları, yönlendirme", "frontend/src/ui/xtm/BecomeACustomer/useBecomeACustomerManager.ts", 79],
+      ["ContactInfo.xaml gibi bilgi ekranları", "", "DetailsStep.tsx", "Kişisel bilgi, adres, şifre adımı", "frontend/src/ui/xtm/BecomeACustomer/steps/DetailsStep.tsx"],
+      ["BecomeACustomerInputContract alanları", "TCKN + cep telefonu ekranı", "IdentityStep.tsx", "1. adım", "frontend/src/ui/xtm/BecomeACustomer/steps/IdentityStep.tsx"],
+      ["if (kYCProcessType == GoCardLogin)", "Zaten müşteri ise girişe yönlendirme", "if (kycProcessType === 'GoCardLogin')", "Aynı karar, aynı isimle", "frontend/src/ui/xtm/BecomeACustomer/useBecomeACustomerManager.ts", 122],
+      ["Diğer ekranlar", "", "Welcome, Login, ForgotPassword, Dashboard, Accounts, OpenAccount, Transfer, Profile, Rates", "Hepsi aynı View + Manager kalıbında", "frontend/src/ui/xtm/"],
+    ]
+  },
+  {
+    id: "container", flow: "Container", title: "Container ve mesajlar (UI altyapısı)",
+    project: "frontend/src/container/, frontend/src/messaging/",
+    role: "Ekranların ortak kullandığı hata sayfası, diyalog ve çok dilli metin altyapısı.",
+    rows: [
+      ["UIManagerFactory.ContainerManager", "Ekranları taşıyan kabuk", "ContainerManager + useContainerManager()", "React context ile her ekrana verilir", "frontend/src/container/containerContext.ts", 13],
+      ["ContainerManager.ShowErrorPage", "", "showErrorPage()", "Ekranın yerine tam sayfa hata", "frontend/src/container/containerContext.ts", 14],
+      ["DialogTypes", "", "DialogTypes", "Bilgi / uyarı / hata diyalogları", "frontend/src/container/containerContext.ts", 4],
+      ["MessagingHelper.GetMessage(\"Xtm\", key)", "Seçili dildeki metin", "getMessage('Xtm', key)", "Aynı kategori + anahtar mantığı", "frontend/src/messaging/messagingHelper.ts", 12],
+      ["ResourceTR.xaml", "Türkçe metin kaynağı", "resources/tr.ts + resources/en.ts", "TR / EN", "frontend/src/messaging/resources/tr.ts"],
+      ["String.Format(mesaj, değer)", "", "formatMessage(template, ...values)", "\"{0}\" yer tutucuları", "frontend/src/messaging/messagingHelper.ts", 21],
+    ]
+  },
+  {
+    id: "caching", flow: "Client Caching", title: "Client Caching",
+    project: "frontend/src/proxy/*Queries.ts",
+    role: "Sık değişmeyen verileri (il, ilçe, kur, hesap listesi) istemcide tutar; her ekranda tekrar sunucuya gidilmez.",
+    rows: [
+      ["Client Caching katmanı", "Parametre önbelleği", "parameterQueries", "İl, ilçe, döviz kurları (TanStack Query)", "frontend/src/proxy/parameterQueries.ts", 10],
+      ["", "Müşteri verisi önbelleği", "accountQueries", "Hesaplar, hareketler, son işlemler, profil", "frontend/src/proxy/accountQueries.ts"],
+      ["", "", "queryClient", "Önbellek ayarları; çıkışta temizlenir", "frontend/src/app/queryClient.ts"],
+    ]
+  },
+  {
+    id: "proxy", flow: "Proxy", title: "İstemci proxy'si",
+    project: "frontend/src/proxy/executer.ts",
+    role: "Ekranla sunucu arasındaki aracı. Her servis çağrısı buradan, tek tip cevapla (GenericResponse) döner.",
+    rows: [
+      ["BOA.SelfService.Proxy.Executer", "Tipli servis metotları", "Executer", "Her backend işleminin tipli karşılığı", "frontend/src/proxy/executer.ts", 107],
+      ["Executer.GetCountyList(int cityId)", "", "Executer.getCountyList(cityId)", "→ 'Parameter.GetCountyList'", "frontend/src/proxy/executer.ts", 143],
+      ["AtmExecute<TReq, TRes>", "İsteği sunucuya gönderen ortak metot", "execute<TOut>(methodName, data)", "POST /api/execute; token ve dil başlığı ekler", "frontend/src/proxy/executer.ts", 38],
+      ["KtmTraceUtil.Trace", "İstemci izleme", "traceUtil", "İstemci tarafı log", "frontend/src/shared/traceUtil.ts", 8],
+    ]
+  },
+  {
+    id: "communication", flow: "Communication", title: "Communication (WCF)",
+    project: "MiniBoa.Communication",
+    role: "Sunucunun dışarıya açılan kapısı. BOA'da WCF servisi, MiniBoa'da tek bir ASP.NET Core endpoint'i.",
+    rows: [
+      ["WCF servis kapısı", "", "ExecuteController.Execute", "Tek iş kapısı: POST /api/execute", "backend/MiniBoa.Communication/Controllers/ExecuteController.cs", 15],
+      ["BecomeACustomerHelperRequest { MethodName = \"...\" }", "İstek zarfı", "ExecuteRequest(MethodName, Data)", "\"Helper.Metod\" adı + girdi verisi", "backend/MiniBoa.Communication/Routing/ExecuteRequest.cs", 10],
+      ["Servis ayağa kaldırma", "", "Program.cs", "Servis kayıtları, JWT, CORS, middleware sırası", "backend/MiniBoa.Communication/Program.cs"],
+      ["", "", "GET /health", "Veritabanı sağlık kontrolü", "backend/MiniBoa.Communication/Health/DatabaseHealthCheck.cs"],
+    ]
+  },
+  {
+    id: "auth", flow: "Authentication", title: "Authentication / Authorization",
+    project: "MiniBoa.Communication/Security",
+    role: "İsteği yapanın kim olduğunu ve bu işlemi yapmaya yetkisi olup olmadığını belirler.",
+    rows: [
+      ["Oturum / kimlik", "", "TokenService.CreateToken(customerNo)", "Girişte JWT üretir", "backend/MiniBoa.Communication/Security/TokenService.cs", 17],
+      ["", "", "RequestContextMiddleware", "Token'dan müşteri no'yu okuyup bağlama koyar", "backend/MiniBoa.Communication/Middleware/RequestContextMiddleware.cs"],
+      ["Girişsiz çağrılabilen işlemler", "", "[AnonymousAccess]", "Örn. Login, CustomerDecisionByTaxNumber", "backend/MiniBoa.Framework/AnonymousAccessAttribute.cs"],
+      ["Şifre kontrolü", "", "Customer.AuthenticateAsync", "bcrypt; 3 hatalı denemede 5 dk kilit", "backend/MiniBoa.Business/Kernel/Customer.cs", 60],
+    ]
+  },
+  {
+    id: "routing", flow: "Routing", title: "Messaging & Routing",
+    project: "MiniBoa.Communication/Routing",
+    role: "Gelen isteğin MethodName'ine bakıp doğru orchestration metodunu bulur ve çağırır.",
+    rows: [
+      ["AtmExecute<TRequest, TResponse>(request)", "İsteği ilgili helper'a yönlendirme", "RequestDispatcher.DispatchAsync", "404 / 401 / 400 kontrolleri, metodu çağırır, süreyi loglar", "backend/MiniBoa.Communication/Routing/RequestDispatcher.cs", 30],
+      ["MethodName → metot eşlemesi", "", "OperationRegistry", "Açılışta reflection ile tüm helper metotlarını bulur", "backend/MiniBoa.Communication/Routing/OperationRegistry.cs"],
+      ["", "", "GET /api/operations", "Çağrılabilir tüm işlemlerin listesi", "backend/MiniBoa.Communication/Controllers/ExecuteController.cs", 23],
+    ]
+  },
+  {
+    id: "orchestration", flow: "Orchestration", title: "Orchestration",
+    project: "MiniBoa.Orchestration",
+    role: "İşin akışını yönetir: response'u hazırlar, transaction açar, business'ı çağırır, günlüğe yazar, sonucu contract'a çevirir. İş kuralı içermez.",
+    rows: [
+      ["BOA.Orchestration.SelfService.*Helper", "Helper sınıflarının ortak yapısı", "OrchestrationBase", "Tüm helper'ların taban sınıfı", "backend/MiniBoa.Orchestration/OrchestrationBase.cs", 13],
+      ["BOA.Orchestration.SelfService.BecomeACustomerHelper", "", "BecomeACustomerHelper", "CustomerDecisionByTaxNumber, CreateCustomer", "backend/MiniBoa.Orchestration/BecomeACustomerHelper.cs"],
+      ["ObjectHelper", "Helper'a verilen yardımcı nesne", "ObjectHelper", "Bağlam ve log", "backend/MiniBoa.Framework/ObjectHelper.cs"],
+      ["objectHelper.Context", "İstek bağlamı", "RequestContext", "Müşteri no, TraceId, dil (istek başına bir tane)", "backend/MiniBoa.Framework/RequestContext.cs"],
+      ["objectHelper.InitializeGenericResponse<T>(\"...Helper.Method\")", "Boş response hazırlama", "InitializeGenericResponse<T>()", "Metot adı otomatik verilir", "backend/MiniBoa.Orchestration/OrchestrationBase.cs", 28],
+      ["DeviceJournalManager.AppendLineToJournal", "Cihaz günlüğü", "AppendToJournalAsync(message)", "log.device_journal tablosuna yazar", "backend/MiniBoa.Orchestration/OrchestrationBase.cs", 32],
+      ["", "", "LoginHelper", "Login", "backend/MiniBoa.Orchestration/LoginHelper.cs"],
+      ["", "", "TransferHelper", "Transfer, GetReceiverName", "backend/MiniBoa.Orchestration/TransferHelper.cs", 17],
+      ["", "", "AccountHelper", "GetCustomerSummary, GetAccounts, GetAccountTransactions, GetRecentTransactions, OpenAccount", "backend/MiniBoa.Orchestration/AccountHelper.cs"],
+      ["", "", "PasswordResetHelper", "VerifyIdentity, ResetPassword", "backend/MiniBoa.Orchestration/PasswordResetHelper.cs"],
+      ["", "", "ProfileHelper", "GetProfile, UpdateProfile", "backend/MiniBoa.Orchestration/ProfileHelper.cs"],
+      ["Executer.GetCountyList(cityId)", "Sunucu tarafı", "ParameterHelper.GetCountyList", "GetCityList, GetCountyList, GetCurrencyRates", "backend/MiniBoa.Orchestration/ParameterHelper.cs", 25],
+    ]
+  },
+  {
+    id: "business", flow: "Business", title: "Business Objects / Business Kernel",
+    project: "MiniBoa.Business/Kernel",
+    role: "Bankacılık kurallarının olduğu yer. Kural ihlalinde exception değil, mesajlı başarısız GenericResponse döner.",
+    rows: [
+      ["İş nesnelerinin ortak yapısı", "", "BusinessObjectBase.Fail<T>(code, key)", "Kullanıcının dilinde hata mesajı üretir", "backend/MiniBoa.Business/BusinessObjectBase.cs", 15],
+      ["Business.Kernel.Customer.Person", "Kişi", "Person", "Yaş, ad, e-posta, telefon kuralları; adres güncelleme", "backend/MiniBoa.Business/Kernel/Person.cs", 13],
+      ["Business.Kernel.Customer.Customer", "Müşteri", "Customer", "Müşteri oluşturma, giriş, hesap kilidi, şifre sıfırlama", "backend/MiniBoa.Business/Kernel/Customer.cs"],
+      ["Business.Kernel.Customer.Mernis", "Kimlik doğrulama", "IMernis / Mernis", "TCKN algoritması", "backend/MiniBoa.Business/Kernel/Mernis.cs"],
+      ["Tamamlanmamış başvurusu var kontrolü", "", "CustomerApplication.FindIncompleteAsync", "Yarım kalmış başvuruyu bulur (ContinueApplication)", "backend/MiniBoa.Business/Kernel/CustomerApplication.cs", 31],
+      ["Business.Kernel.Account.Account", "Hesap", "Account", "Hesap açma, hareketler, transfer", "backend/MiniBoa.Business/Kernel/Account.cs", 11],
+      ["", "Para transferi", "Account.TransferAsync", "Bakiye, aynı hesap, günlük 50.000 limit; kilit sonrası yazma", "backend/MiniBoa.Business/Kernel/Account.cs", 138],
+      ["GetAccountSuffix", "Sonraki hesap ek numarası", "Account.OpenAccountAsync → GetNextSuffixAsync", "", "backend/MiniBoa.Business/Kernel/Account.cs", 115],
+      ["", "", "Iban", "IBAN doğrulama ve üretme", "backend/MiniBoa.Business/Kernel/Iban.cs"],
+    ]
+  },
+  {
+    id: "transaction", flow: "Transaction", title: "Transaction Management",
+    project: "MiniBoa.Data",
+    role: "\"Ya hep ya hiç\" garantisi. Orchestration transaction'ı açar; business içinde yapılan tüm yazmalar birlikte commit ya da rollback edilir.",
+    rows: [
+      ["Transaction Management katmanı", "", "IUnitOfWork / UnitOfWork", "İstek başına tek bağlantı; tüm repository'ler paylaşır", "backend/MiniBoa.Data/UnitOfWork.cs"],
+      ["", "", "ExecuteInTransactionAsync(...)", "Success ise Commit, değilse Rollback; exception'da da Rollback", "backend/MiniBoa.Data/UnitOfWorkExtensions.cs", 13],
+    ]
+  },
+  {
+    id: "data", flow: "Data", title: "Data Layer",
+    project: "MiniBoa.Data + database/",
+    role: "SQL'in yazıldığı tek yer (Dapper + PostgreSQL). Üst katmanlar SQL görmez.",
+    rows: [
+      ["Veri erişim tabanı", "", "RepositoryBase", "QueryAsync, QuerySingleOrDefaultAsync, ExecuteScalarAsync", "backend/MiniBoa.Data/RepositoryBase.cs", 9],
+      ["", "", "AccountRepository.GetForUpdateAsync", "SELECT … FOR UPDATE ile hesap kilidi", "backend/MiniBoa.Data/Repositories/AccountRepository.cs", 46],
+      ["", "", "CustomerRepository, PersonRepository, TransactionRepository, ApplicationRepository, ParameterRepository", "", "backend/MiniBoa.Data/Repositories/"],
+      ["Modül ayrımı", "", "prm, cus, acc, txn, log şemaları", "CHECK (balance >= 0) son savunma hattı", "database/01_schema.sql", 3],
+      ["Business.Kernel.Customer.Person / Customer ayrımı", "", "cus.person / cus.customer", "Kişi müşteri olmadan da var olabilir", "database/01_schema.sql", 50],
+    ]
+  },
+  {
+    id: "types", flow: null, title: "Ortak tipler",
+    project: "MiniBoa.Types + frontend/src/types/",
+    role: "Katmanlar arasında taşınan request ve response sınıfları. Backend ve frontend aynı şekli kullanır.",
+    rows: [
+      ["GenericResponse<T>", "Tüm katmanların dönüş tipi", "GenericResponse<T>", "Value + Results + Success", "backend/MiniBoa.Types/GenericResponse.cs", 8],
+      ["Result / hata mesajı", "", "Result(ErrorCode, Message, Severity)", "", "backend/MiniBoa.Types/Result.cs", 6],
+      ["BOA.Types.SelfService", "Contract sınıfları", "MiniBoa.Types.Contracts", "Örn. TransferContract, TransferResultContract", "backend/MiniBoa.Types/Contracts/TransferContracts.cs"],
+      ["BecomeACustomerInputContract", "", "BecomeACustomerInputContract", "Aynı isim", "backend/MiniBoa.Types/Contracts/BecomeACustomerContracts.cs", 7],
+      ["KYCCustomerInfoContract.KYCProcessTypeEnum", "GoCardLogin, ContinueApplication…", "KYCCustomerInfoContract.KYCProcessTypeEnum", "Aynı isimler", "backend/MiniBoa.Types/Contracts/BecomeACustomerContracts.cs", 16],
+      ["ParameterContract", "GetCountyList dönüşü", "ParameterContract", "id / ad çifti", "backend/MiniBoa.Types/Contracts/ParameterContracts.cs"],
+      ["", "Frontend tarafı", "contracts.ts, genericResponse.ts", "Backend sınıflarının TypeScript karşılıkları", "frontend/src/types/contracts.ts"],
+    ]
+  },
+  {
+    id: "tracing", flow: null, title: "Tracing & Logging",
+    project: "MiniBoa.Framework",
+    role: "Bir isteğin baştan sona izlenebilmesi.",
+    rows: [
+      ["KtmTraceUtil.Trace", "", "traceUtil", "İstemci log'u", "frontend/src/shared/traceUtil.ts"],
+      ["Metot başlangıç logu", "", "ObjectHelper.InitializeGenericResponse", "\"[TraceId] Helper.Method started\"", "backend/MiniBoa.Framework/ObjectHelper.cs", 14],
+      ["", "", "X-Trace-Id başlığı", "Her cevaba istek kimliği eklenir", "backend/MiniBoa.Communication/Middleware/RequestContextMiddleware.cs"],
+      ["DeviceJournalManager", "", "JournalRepository → log.device_journal", "", "backend/MiniBoa.Data/Repositories/JournalRepository.cs"],
+    ]
+  },
+  {
+    id: "exceptions", flow: null, title: "Exception Handling",
+    project: "MiniBoa.Communication/Middleware",
+    role: "Beklenen hatalar GenericResponse ile döner; beklenmeyenler tek yerde yakalanır.",
+    rows: [
+      ["Exception Handling katmanı", "", "GlobalExceptionHandler", "Yakalanmamış hatayı loglar, kullanıcıya genel mesaj döner", "backend/MiniBoa.Communication/Middleware/GlobalExceptionHandler.cs", 10],
+      ["", "", "BoaException", "Hata kodu taşıyan uygulama exception'ı", "backend/MiniBoa.Framework/Exceptions/BoaException.cs"],
+    ]
+  },
+  {
+    id: "config", flow: null, title: "Configuration & Management",
+    project: "MiniBoa.Communication",
+    role: "Bağlantı cümlesi, JWT ayarları, CORS.",
+    rows: [
+      ["Konfigürasyon", "", "appsettings.json / appsettings.Development.json", "", "backend/MiniBoa.Communication/appsettings.json"],
+      ["Workflow, Code Generation", "", "Kapsam dışı", "Demoda bilinçli olarak yok", "docs/ARCHITECTURE.md"],
+    ]
+  },
+];
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+function fileLink(path, line) {
+  if (!path) return "";
+  const isDir = path.endsWith("/");
+  const href = REPO.replace("/blob/", isDir ? "/tree/" : "/blob/") + path + (line ? "#L" + line : "");
+  return `<a class="file" href="${href}" target="_blank" rel="noopener">${esc(path)}${line ? ":" + line : ""}</a>`;
+}
+
+function cell(side, name, note, extra) {
+  return `<div class="cell ${side}">` +
+    (name ? `<span class="name">${esc(name)}</span>` : `<span class="note">—</span>`) +
+    (note ? `<span class="note">${esc(note)}</span>` : "") +
+    (extra || "") + `</div>`;
+}
+
+function render(query) {
+  const q = query.trim().toLocaleLowerCase("tr");
+  let shown = 0;
+  const html = LAYERS.map(layer => {
+    const layerText = (layer.title + " " + layer.role).toLocaleLowerCase("tr");
+    const rows = layer.rows.filter(r =>
+      !q || layerText.includes(q) || r.join(" ").toLocaleLowerCase("tr").includes(q));
+    if (!rows.length) return "";
+    shown += rows.length;
+    const eyebrow = layer.flow ? "Katman" : "Ortak parça";
+    return `<section class="layer" id="${layer.id}">
+      <header>
+        <span class="eyebrow">${eyebrow}</span>
+        <h2>${esc(layer.title)}</h2>
+        <p class="role">${esc(layer.role)}</p>
+        <span class="project">${esc(layer.project)}</span>
+      </header>
+      <div class="cols" aria-hidden="true"><span class="b">BOA</span><span class="m">MiniBoa</span></div>
+      ${rows.map(([bName, bNote, mName, mNote, path, line]) => `<div class="row">
+        ${cell("boa-side", bName, bNote)}
+        <div class="arrow" aria-hidden="true"><span>→</span></div>
+        ${cell("mini-side", mName, mNote, fileLink(path, line))}
+      </div>`).join("")}
+    </section>`;
+  }).join("");
+  document.getElementById("layers").innerHTML = html;
+  document.getElementById("layers").style.display = "grid";
+  document.getElementById("layers").style.gap = "20px";
+  document.getElementById("empty").hidden = shown > 0;
+}
+
+document.getElementById("flow").innerHTML = LAYERS.filter(l => l.flow)
+  .map(l => `<li><a href="#${l.id}">${esc(l.flow)}</a></li>`).join("");
+
+const input = document.getElementById("q");
+input.addEventListener("input", () => render(input.value));
+render(input.value);
+</script>
+</body>
+</html>
